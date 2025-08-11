@@ -3,7 +3,7 @@ import Card from "./Card";
 function CardGrid({cards, onCardClick}){
     return (
         <div className="card-grid">
-            {cards.map((card) => {
+            {cards.map((card) => (
                 <Card
                 key={card.id}
                 id={card.id}
@@ -11,7 +11,7 @@ function CardGrid({cards, onCardClick}){
                 imageUrl={card.imageUrl}
                 onClick={onCardClick}
                 />
-            })}
+            ))}
         </div>
     )
 }
