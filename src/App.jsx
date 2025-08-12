@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import './App.css';
 import Scoreboard from './components/Scoreboard';
 import CardGrid from './components/CardGrid';
 import GameStatus from './components/GameStatus';
 
-const TOTAL_CARDS = 12;
+const TOTAL_CARDS = 15;
 
 function App() {
   const [cards, setCards] = useState([]);
@@ -16,11 +16,11 @@ function App() {
 
   const shuffleCards = (array) => array.sort(() => Math.random() - 0.5);
 
-  const fetchAndSetCards = async () => {
+  const fetchAndSetCards = useCallback(async () => {
     setIsLoading(true);
     try {
       const pokemonIds = new Set();
-      while(pokemonIds.size < TOTAL_CARDS) {
+      while (pokemonIds.size < TOTAL_CARDS) {
         pokemonIds.add(Math.floor(Math.random() * 151) + 1);
       }
       const cardPromises = Array.from(pokemonIds).map(async (id) => {
@@ -35,15 +35,15 @@ function App() {
       const fetchedCards = await Promise.all(cardPromises);
       setCards(shuffleCards(fetchedCards));
     } catch (error) {
-      console.error("Failed to fetch cards:", error);
+      console.error('Failed to fetch cards:', error);
       // Handle fetch error, maybe show an error message to the user
     }
     setIsLoading(false);
-  };
+  }, []);
 
   useEffect(() => {
     fetchAndSetCards();
-  }, []);
+  }, [fetchAndSetCards]);
 
   const handleCardClick = (id) => {
     if (gameState !== 'playing') return;
@@ -79,13 +79,27 @@ function App() {
     fetchAndSetCards();
   };
 
+  const handleResetBestScore = () => {
+    setBestScore(0);
+  };
+
   return (
     <div className="App">
       <header className="app-header">
         <h1>Pokémon Memory Game</h1>
-        <Scoreboard score={score} bestScore={bestScore} />
+        <Scoreboard
+          score={score}
+          bestScore={bestScore}
+          onResetBestScore={handleResetBestScore}
+        />
       </header>
       <main>
+        <div className="rules">
+          <p>
+            Click on a Pokémon to earn points, but don't click on any more than
+            once!
+          </p>
+        </div>
         {isLoading ? (
           <p>Loading Cards...</p>
         ) : (
